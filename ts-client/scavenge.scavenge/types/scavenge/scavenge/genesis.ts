@@ -1,5 +1,6 @@
 /* eslint-disable */
 import _m0 from "protobufjs/minimal";
+import { Commit } from "./commit";
 import { Params } from "./params";
 import { Scavenge } from "./scavenge";
 
@@ -7,15 +8,14 @@ export const protobufPackage = "scavenge.scavenge";
 
 /** GenesisState defines the scavenge module's genesis state. */
 export interface GenesisState {
-  params:
-    | Params
-    | undefined;
-  /** this line is used by starport scaffolding # genesis/proto/state */
+  params: Params | undefined;
   scavengeList: Scavenge[];
+  /** this line is used by starport scaffolding # genesis/proto/state */
+  commitList: Commit[];
 }
 
 function createBaseGenesisState(): GenesisState {
-  return { params: undefined, scavengeList: [] };
+  return { params: undefined, scavengeList: [], commitList: [] };
 }
 
 export const GenesisState = {
@@ -25,6 +25,9 @@ export const GenesisState = {
     }
     for (const v of message.scavengeList) {
       Scavenge.encode(v!, writer.uint32(18).fork()).ldelim();
+    }
+    for (const v of message.commitList) {
+      Commit.encode(v!, writer.uint32(26).fork()).ldelim();
     }
     return writer;
   },
@@ -42,6 +45,9 @@ export const GenesisState = {
         case 2:
           message.scavengeList.push(Scavenge.decode(reader, reader.uint32()));
           break;
+        case 3:
+          message.commitList.push(Commit.decode(reader, reader.uint32()));
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -56,6 +62,7 @@ export const GenesisState = {
       scavengeList: Array.isArray(object?.scavengeList)
         ? object.scavengeList.map((e: any) => Scavenge.fromJSON(e))
         : [],
+      commitList: Array.isArray(object?.commitList) ? object.commitList.map((e: any) => Commit.fromJSON(e)) : [],
     };
   },
 
@@ -67,6 +74,11 @@ export const GenesisState = {
     } else {
       obj.scavengeList = [];
     }
+    if (message.commitList) {
+      obj.commitList = message.commitList.map((e) => e ? Commit.toJSON(e) : undefined);
+    } else {
+      obj.commitList = [];
+    }
     return obj;
   },
 
@@ -76,6 +88,7 @@ export const GenesisState = {
       ? Params.fromPartial(object.params)
       : undefined;
     message.scavengeList = object.scavengeList?.map((e) => Scavenge.fromPartial(e)) || [];
+    message.commitList = object.commitList?.map((e) => Commit.fromPartial(e)) || [];
     return message;
   },
 };
