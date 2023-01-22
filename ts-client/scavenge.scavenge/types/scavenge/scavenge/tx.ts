@@ -13,6 +13,15 @@ export interface MsgSubmitScavenge {
 export interface MsgSubmitScavengeResponse {
 }
 
+export interface MsgCommitSolution {
+  creator: string;
+  solutionHash: string;
+  solutionScavengerHash: string;
+}
+
+export interface MsgCommitSolutionResponse {
+}
+
 function createBaseMsgSubmitScavenge(): MsgSubmitScavenge {
   return { creator: "", solutionHash: "", description: "", reward: "" };
 }
@@ -128,10 +137,117 @@ export const MsgSubmitScavengeResponse = {
   },
 };
 
+function createBaseMsgCommitSolution(): MsgCommitSolution {
+  return { creator: "", solutionHash: "", solutionScavengerHash: "" };
+}
+
+export const MsgCommitSolution = {
+  encode(message: MsgCommitSolution, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.creator !== "") {
+      writer.uint32(10).string(message.creator);
+    }
+    if (message.solutionHash !== "") {
+      writer.uint32(18).string(message.solutionHash);
+    }
+    if (message.solutionScavengerHash !== "") {
+      writer.uint32(26).string(message.solutionScavengerHash);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgCommitSolution {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMsgCommitSolution();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.creator = reader.string();
+          break;
+        case 2:
+          message.solutionHash = reader.string();
+          break;
+        case 3:
+          message.solutionScavengerHash = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MsgCommitSolution {
+    return {
+      creator: isSet(object.creator) ? String(object.creator) : "",
+      solutionHash: isSet(object.solutionHash) ? String(object.solutionHash) : "",
+      solutionScavengerHash: isSet(object.solutionScavengerHash) ? String(object.solutionScavengerHash) : "",
+    };
+  },
+
+  toJSON(message: MsgCommitSolution): unknown {
+    const obj: any = {};
+    message.creator !== undefined && (obj.creator = message.creator);
+    message.solutionHash !== undefined && (obj.solutionHash = message.solutionHash);
+    message.solutionScavengerHash !== undefined && (obj.solutionScavengerHash = message.solutionScavengerHash);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<MsgCommitSolution>, I>>(object: I): MsgCommitSolution {
+    const message = createBaseMsgCommitSolution();
+    message.creator = object.creator ?? "";
+    message.solutionHash = object.solutionHash ?? "";
+    message.solutionScavengerHash = object.solutionScavengerHash ?? "";
+    return message;
+  },
+};
+
+function createBaseMsgCommitSolutionResponse(): MsgCommitSolutionResponse {
+  return {};
+}
+
+export const MsgCommitSolutionResponse = {
+  encode(_: MsgCommitSolutionResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgCommitSolutionResponse {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMsgCommitSolutionResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(_: any): MsgCommitSolutionResponse {
+    return {};
+  },
+
+  toJSON(_: MsgCommitSolutionResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<MsgCommitSolutionResponse>, I>>(_: I): MsgCommitSolutionResponse {
+    const message = createBaseMsgCommitSolutionResponse();
+    return message;
+  },
+};
+
 /** Msg defines the Msg service. */
 export interface Msg {
-  /** this line is used by starport scaffolding # proto/tx/rpc */
   SubmitScavenge(request: MsgSubmitScavenge): Promise<MsgSubmitScavengeResponse>;
+  /** this line is used by starport scaffolding # proto/tx/rpc */
+  CommitSolution(request: MsgCommitSolution): Promise<MsgCommitSolutionResponse>;
 }
 
 export class MsgClientImpl implements Msg {
@@ -139,11 +255,18 @@ export class MsgClientImpl implements Msg {
   constructor(rpc: Rpc) {
     this.rpc = rpc;
     this.SubmitScavenge = this.SubmitScavenge.bind(this);
+    this.CommitSolution = this.CommitSolution.bind(this);
   }
   SubmitScavenge(request: MsgSubmitScavenge): Promise<MsgSubmitScavengeResponse> {
     const data = MsgSubmitScavenge.encode(request).finish();
     const promise = this.rpc.request("scavenge.scavenge.Msg", "SubmitScavenge", data);
     return promise.then((data) => MsgSubmitScavengeResponse.decode(new _m0.Reader(data)));
+  }
+
+  CommitSolution(request: MsgCommitSolution): Promise<MsgCommitSolutionResponse> {
+    const data = MsgCommitSolution.encode(request).finish();
+    const promise = this.rpc.request("scavenge.scavenge.Msg", "CommitSolution", data);
+    return promise.then((data) => MsgCommitSolutionResponse.decode(new _m0.Reader(data)));
   }
 }
 

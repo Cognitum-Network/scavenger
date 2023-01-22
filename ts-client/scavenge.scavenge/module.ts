@@ -8,9 +8,10 @@ import { IgniteClient } from "../client"
 import { MissingWalletError } from "../helpers"
 import { Api } from "./rest";
 import { MsgSubmitScavenge } from "./types/scavenge/scavenge/tx";
+import { MsgCommitSolution } from "./types/scavenge/scavenge/tx";
 
 
-export { MsgSubmitScavenge };
+export { MsgSubmitScavenge, MsgCommitSolution };
 
 type sendMsgSubmitScavengeParams = {
   value: MsgSubmitScavenge,
@@ -18,9 +19,19 @@ type sendMsgSubmitScavengeParams = {
   memo?: string
 };
 
+type sendMsgCommitSolutionParams = {
+  value: MsgCommitSolution,
+  fee?: StdFee,
+  memo?: string
+};
+
 
 type msgSubmitScavengeParams = {
   value: MsgSubmitScavenge,
+};
+
+type msgCommitSolutionParams = {
+  value: MsgCommitSolution,
 };
 
 
@@ -55,12 +66,34 @@ export const txClient = ({ signer, prefix, addr }: TxClientOptions = { addr: "ht
 			}
 		},
 		
+		async sendMsgCommitSolution({ value, fee, memo }: sendMsgCommitSolutionParams): Promise<DeliverTxResponse> {
+			if (!signer) {
+					throw new Error('TxClient:sendMsgCommitSolution: Unable to sign Tx. Signer is not present.')
+			}
+			try {			
+				const { address } = (await signer.getAccounts())[0]; 
+				const signingClient = await SigningStargateClient.connectWithSigner(addr,signer,{registry, prefix});
+				let msg = this.msgCommitSolution({ value: MsgCommitSolution.fromPartial(value) })
+				return await signingClient.signAndBroadcast(address, [msg], fee ? fee : defaultFee, memo)
+			} catch (e: any) {
+				throw new Error('TxClient:sendMsgCommitSolution: Could not broadcast Tx: '+ e.message)
+			}
+		},
+		
 		
 		msgSubmitScavenge({ value }: msgSubmitScavengeParams): EncodeObject {
 			try {
 				return { typeUrl: "/scavenge.scavenge.MsgSubmitScavenge", value: MsgSubmitScavenge.fromPartial( value ) }  
 			} catch (e: any) {
 				throw new Error('TxClient:MsgSubmitScavenge: Could not create message: ' + e.message)
+			}
+		},
+		
+		msgCommitSolution({ value }: msgCommitSolutionParams): EncodeObject {
+			try {
+				return { typeUrl: "/scavenge.scavenge.MsgCommitSolution", value: MsgCommitSolution.fromPartial( value ) }  
+			} catch (e: any) {
+				throw new Error('TxClient:MsgCommitSolution: Could not create message: ' + e.message)
 			}
 		},
 		
